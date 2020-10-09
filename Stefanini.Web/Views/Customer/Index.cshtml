@@ -1,0 +1,134 @@
+﻿
+@model IEnumerable<Stefanini.Web.Models.Customer>
+
+@{
+    ViewBag.Title = "Stefanini - Customer List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts
+{
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#City").change(function () {
+            var dID = $(this).val();
+            $.getJSON("../Customer/LoadRegionByCity", { cityId: dID },
+                function (data) {
+                    var select = $("#Region");
+                    select.empty();
+                    select.append($('<option/>', {
+                        value: 0,
+                        text: "Please select one"
+                    }));
+                    $.each(data, function (index, itemData) {
+                        select.append($('<option/>', {
+                            value: itemData.Value,
+                            text: itemData.Text
+                        }));
+                    });
+                });
+        });
+    });
+</script>
+}
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="container">
+                @using (Html.BeginForm("Search", "Customer", FormMethod.Post, new { @class = "form-horizontal" }))
+                {
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="">Name:</label>
+                        <div class="col-sm-2">
+                            @Html.TextBox("Name", null, new { @class = "form-control", style = "width:250px;" })
+                        </div>
+                        <label class="control-label col-sm-2" for="">Gender:</label>
+                        <div class="col-sm-2">
+                            @Html.DropDownList("Gender", ViewBag.Genders as List<SelectListItem>, "Please select one", new { @class = "form-control", style = "width:150px;" })
+                        </div>
+                        <div class="col-sm-offset-2 col-sm-2">
+                            <button type="submit" class="btn btn-default">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="">City:</label>
+                        <div class="col-sm-2">
+                            @Html.DropDownList("City", ViewBag.Cities as List<SelectListItem>, "Please select one", new { @class = "form-control", style = "width:250px;" })
+                        </div>
+                        <label class="control-label col-sm-2" for="">Region:</label>
+                        <div class="col-sm-2">
+                            @Html.DropDownList("Region", ViewBag.Regions as List<SelectListItem>, "Please select one", new { @class = "form-control", style = "width:250px;" })
+                        </div>
+                        <div class="col-sm-offset-2 col-sm-2">
+                            <button type="reset" class="btn btn-default">Clear Fields</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="">Last Purchase:</label>
+                        <div class="col-sm-2">
+                            @Html.TextBox("PurchaseFrom", null, new { @class = "form-control", type = "date" })
+                        </div>
+                        <label class="control-label col-sm-1" for="">Until:</label>
+                        <div class="col-sm-2">
+                            @Html.TextBox("PurchaseUntil", null, new { @class = "form-control", type = "date" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="">Classification:</label>
+                        <div class="col-sm-2">
+                            @Html.DropDownList("Classification", ViewBag.Classifications as List<SelectListItem>, "Please select one", new { @class = "form-control", style = "width:250px;" })
+                        </div>
+
+                        @if (Session["userIsAdmin"] != null && Convert.ToBoolean(Session["userIsAdmin"].ToString()))
+                        {
+                            <label class="control-label col-sm-2" for="">Seller:</label>
+                            <div class="col-sm-2">
+                                @Html.DropDownList("Seller", ViewBag.Sellers as List<SelectListItem>, "Please select one", new { @class = "form-control", style = "width:250px;" })
+                            </div>
+                        }
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <th>Classification</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Gender</th>
+                    <th>City</th>
+                    <th>Region</th>
+                    <th>Last Purchase</th>
+                    @if (Session["userIsAdmin"] != null && Convert.ToBoolean(Session["userIsAdmin"].ToString()))
+                    {
+                        <th>Seller</th>
+                    }
+                </tr>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>@customer.Classification</td>
+                        <td>@customer.Name</td>
+                        <td>@customer.Phone</td>
+                        <td>@customer.Gender</td>
+                        <td>@customer.City</td>
+                        <td>@customer.Region</td>
+                        <td>@customer.LastPurchase</td>
+                        @if (Session["userIsAdmin"] != null && Convert.ToBoolean(Session["userIsAdmin"].ToString()))
+                        {
+                            <td>@customer.Seller</td>
+                        }
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</div>
